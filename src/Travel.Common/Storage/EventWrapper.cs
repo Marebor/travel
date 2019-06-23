@@ -1,5 +1,4 @@
-﻿using System;
-using Travel.Common.Cqrs;
+﻿using Travel.Common.Cqrs;
 
 namespace Travel.Common.Storage
 {

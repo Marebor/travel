@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using System.Collections;
@@ -27,7 +28,10 @@ namespace Travel.Infrastructure.DI
         protected override void Load(ContainerBuilder builder)
         {
             base.Load(builder);
-            
+
+            MapAllEvents();
+            ConventionRegistry.Register("MyConventions", new MyConventions(), _ => true);
+
             builder.Register<IMongoClient>(c =>
             {
                 var ctx = c.Resolve<IComponentContext>();
@@ -57,8 +61,6 @@ namespace Travel.Infrastructure.DI
                 return db;
             });
 
-            ConventionRegistry.Register("MyConventions", new MyConventions(), _ => true);
-
             assemblies
                .SelectMany(x => x.GetTypes())
                .Where(x => typeof(Aggregate).IsAssignableFrom(x))
@@ -84,6 +86,25 @@ namespace Travel.Infrastructure.DI
                });
         }
         
+        private void MapAllEvents()
+        {
+            var eventTypes = assemblies
+                .SelectMany(x => x.GetTypes())
+                .Where(t => typeof(IEvent).IsAssignableFrom(t))
+                .Where(t => t.IsClass);
+
+            foreach (var type in eventTypes)
+            {
+                var registrationMethod = typeof(BsonClassMap).GetMethods()
+                    .Where(m => m.Name == nameof(BsonClassMap.RegisterClassMap))
+                    .Where(m => m.GetParameters().Length == 0)
+                    .First()
+                    .MakeGenericMethod(type);
+
+                registrationMethod.Invoke(null, new object[] { });
+            }
+        }
+
         private class MyConventions : IConventionPack
         {
             public IEnumerable<IConvention> Conventions
