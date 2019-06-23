@@ -1,5 +1,8 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Http;
 using System.Reflection;
+using Travel.Common.Auth;
+using Travel.Infrastructure.Auth;
 
 namespace Travel.Infrastructure.DI.Extensions
 {
@@ -18,6 +21,14 @@ namespace Travel.Infrastructure.DI.Extensions
         public static ContainerBuilder AddMongoDb(this ContainerBuilder builder, bool seedDatabase, params Assembly[] assemblies)
         {
             builder.RegisterModule(StorageModule.For(assemblies, seedDatabase));
+
+            return builder;
+        }
+
+        public static ContainerBuilder AddIdentity(this ContainerBuilder builder)
+        {
+            builder.RegisterType<HttpContextAccessor>().As<IHttpContextAccessor>().SingleInstance();
+            builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();
 
             return builder;
         }

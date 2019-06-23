@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Travel.Common.Auth;
 using Travel.Common.Cqrs;
 using Travel.Common.ErrorHandling;
 using Travel.Common.ErrorHandling.Exceptions;
@@ -13,23 +14,13 @@ namespace Travel.Domain.Travel.Handlers
     {
         private readonly IAggregateStore<Models.Travel> store;
         private readonly IEventPublisher eventPublisher;
-
-        public CreateTravelHandler(IAggregateStore<Models.Travel> store, IEventPublisher eventPublisher)
-        {
-            this.store = store;
-            this.eventPublisher = eventPublisher;
-        }
+        private readonly IIdentityProvider identityProvider;
 
         public async Task Handle(CreateTravel command)
         {
             if (command.AggregateId == null || command.AggregateId == Guid.Empty)
             {
                 throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.AggregateId));
-            }
-
-            if (string.IsNullOrWhiteSpace(command.Owner))
-            {
-                throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.Owner));
             }
 
             if (string.IsNullOrWhiteSpace(command.Destination))
@@ -49,7 +40,7 @@ namespace Travel.Domain.Travel.Handlers
                 RelatedCommandId = command.CommandId,
                 AggregateVersion = 1,
                 Id = Guid.NewGuid(),
-                Owner = command.Owner,
+                Owner = identityProvider.GetIdentity().Username,
                 Destination = command.Destination,
                 Date = command.Date,
             });

@@ -5,6 +5,5 @@ namespace Travel.ReadModel.Queries
 {
     public class UserTravels : AllTravels, IQuery<IEnumerable<Models.Travel>>
     {
-        public string User { get; set; }
     }
 }

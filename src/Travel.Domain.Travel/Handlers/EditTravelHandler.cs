@@ -7,6 +7,7 @@ using Travel.Common.ErrorHandling.Exceptions;
 using Travel.Common.Storage;
 using Travel.Domain.Travel.Commands;
 using Travel.Domain.Travel.Events;
+using Travel.Domain.Travel.Models;
 
 namespace Travel.Domain.Travel.Handlers
 {
@@ -14,11 +15,13 @@ namespace Travel.Domain.Travel.Handlers
     {
         private readonly IAggregateStore<Models.Travel> store;
         private readonly IEventPublisher eventPublisher;
+        private readonly IIdentityProvider identityProvider;
 
-        public EditTravelHandler(IAggregateStore<Models.Travel> store, IEventPublisher eventPublisher)
+        public EditTravelHandler(IAggregateStore<Models.Travel> store, IEventPublisher eventPublisher, IIdentityProvider identityProvider)
         {
             this.store = store;
             this.eventPublisher = eventPublisher;
+            this.identityProvider = identityProvider;
         }
 
         public async Task Handle(EditTravel command)
@@ -45,7 +48,9 @@ namespace Travel.Domain.Travel.Handlers
                 throw new ResourceStateChangedException(nameof(Travel), travel.Id, travel.Version);
             }
 
-            if (travel.Owner != command.Requester && command.RequesterRole != Roles.Admin)
+            Identity identity = identityProvider.GetIdentity();
+
+            if (travel.Owner != identity.Username && identity.Role != Roles.Admin)
             {
                 throw new UnauthorizedUserException();
             }

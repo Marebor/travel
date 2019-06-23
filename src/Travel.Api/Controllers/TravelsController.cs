@@ -29,12 +29,9 @@ namespace Travel.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyTravels(int? skip, int? take)
         {
-            string user = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Name).Value;
-
             IEnumerable<ReadModel.Models.Travel> travels = 
                 await queryExecutor.Execute<UserTravels, IEnumerable<ReadModel.Models.Travel>>(new UserTravels
                 {
-                    User = user,
                     Skip = skip,
                     Take = take,
                 });
@@ -60,7 +57,6 @@ namespace Travel.Api.Controllers
         public async Task<IActionResult> CreateTravel(CreateTravel command)
         {
             command.CommandId = Guid.NewGuid();
-            command.Owner = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Name).Value;
 
             await commandDispatcher.Dispatch(command);
 
@@ -71,8 +67,6 @@ namespace Travel.Api.Controllers
         public async Task<IActionResult> EditTravel(EditTravel command)
         {
             command.CommandId = Guid.NewGuid();
-            command.Requester = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Name).Value;
-            command.RequesterRole = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
 
             await commandDispatcher.Dispatch(command);
 
@@ -83,8 +77,6 @@ namespace Travel.Api.Controllers
         public async Task<IActionResult> DeleteTravel(DeleteTravel command)
         {
             command.CommandId = Guid.NewGuid();
-            command.Requester = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Name).Value;
-            command.RequesterRole = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Role).Value;
 
             await commandDispatcher.Dispatch(command);
 

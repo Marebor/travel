@@ -10,7 +10,5 @@ namespace Travel.Domain.Travel.Commands
         public int AggregateVersion { get; set; }
         public string Destination { get; set; }
         public DateTime? Date { get; set; }
-        public string Requester { get; set; }
-        public string RequesterRole { get; set; }
     }
 }
