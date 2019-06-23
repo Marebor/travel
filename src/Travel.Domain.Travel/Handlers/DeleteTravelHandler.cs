@@ -30,7 +30,7 @@ namespace Travel.Domain.Travel.Handlers
             
             Models.Travel travel = await store.Get(command.AggregateId);
 
-            if (travel == null)
+            if (travel == null || travel.Deleted)
             {
                 throw new IncorrectRequestException(ErrorCodes.ResourceDoesNotExist, nameof(travel));
             }
@@ -50,7 +50,7 @@ namespace Travel.Domain.Travel.Handlers
                 RelatedCommandId = command.CommandId,
                 Id = command.AggregateId,
             };
-            travel.Apply(@event);
+            travel.ApplyEvent(@event);
             @event.AggregateVersion = travel.Version;
 
             await eventPublisher.Publish(@event);

@@ -10,7 +10,7 @@ namespace Travel.Common.Model
         public Guid Id { get; protected set; }
         public int Version { get; private set; }
 
-        private void ApplyEvent(IEvent e)
+        public void ApplyEvent(IEvent e)
         {
             var eventType = e.GetType();
             var applierType = typeof(IApplyEvent<>).MakeGenericType(eventType);

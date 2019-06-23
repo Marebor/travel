@@ -35,7 +35,7 @@ namespace Travel.Domain.Travel.Handlers
 
             Models.Travel travel = await store.Get(command.AggregateId);
 
-            if (travel == null)
+            if (travel == null || travel.Deleted)
             {
                 throw new IncorrectRequestException(ErrorCodes.ResourceDoesNotExist, nameof(travel));
             }
@@ -57,7 +57,7 @@ namespace Travel.Domain.Travel.Handlers
                 Destination = string.IsNullOrWhiteSpace(command.Destination) ? travel.Destination : command.Destination,
                 Date = command.Date.HasValue ? command.Date.Value : travel.Date,
             };
-            travel.Apply(@event);
+            travel.ApplyEvent(@event);
             @event.AggregateVersion = travel.Version;
 
             await eventPublisher.Publish(@event);

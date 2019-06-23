@@ -48,7 +48,7 @@ namespace Travel.Domain.Travel.Handlers
             {
                 RelatedCommandId = command.CommandId,
                 AggregateVersion = 1,
-                Id = command.AggregateId,
+                Id = Guid.NewGuid(),
                 Owner = command.Owner,
                 Destination = command.Destination,
                 Date = command.Date,

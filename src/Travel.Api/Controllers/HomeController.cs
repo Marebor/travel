@@ -16,13 +16,13 @@ namespace Travel.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("me")]
+        [HttpGet("my-identity")]
         public ActionResult<string> GetIdentity()
         {
             var name = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name).Value;
             var role = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role).Value;
 
-            return Ok($"You are {name} (Role: {role})");
+            return Ok(new { name, role });
         }
     }
 }
