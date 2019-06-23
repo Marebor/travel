@@ -22,9 +22,9 @@ namespace Travel.Domain.Travel.Handlers
 
         public async Task Handle(CreateTravel command)
         {
-            if (command.Id == null || command.Id == Guid.Empty)
+            if (command.AggregateId == null || command.AggregateId == Guid.Empty)
             {
-                throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.Id));
+                throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.AggregateId));
             }
 
             if (string.IsNullOrWhiteSpace(command.Owner))
@@ -37,16 +37,18 @@ namespace Travel.Domain.Travel.Handlers
                 throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.Destination));
             }
 
-            Models.Travel travel = await store.Get(command.Id);
+            Models.Travel travel = await store.Get(command.AggregateId);
 
             if (travel != null)
             {
-                throw new IncorrectRequestException(ErrorCodes.IdAlreadyExists, nameof(command.Id));
+                throw new IncorrectRequestException(ErrorCodes.IdAlreadyExists, nameof(command.AggregateId));
             }
 
             await eventPublisher.Publish(new TravelCreated
             {
-                Id = command.Id,
+                RelatedCommandId = command.CommandId,
+                AggregateVersion = 1,
+                Id = command.AggregateId,
                 Owner = command.Owner,
                 Destination = command.Destination,
                 Date = command.Date,

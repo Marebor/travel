@@ -23,9 +23,9 @@ namespace Travel.Domain.Travel.Handlers
 
         public async Task Handle(EditTravel command)
         {
-            if (command.Id == null || command.Id == Guid.Empty)
+            if (command.AggregateId == null || command.AggregateId == Guid.Empty)
             {
-                throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.Id));
+                throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.AggregateId));
             }
 
             if (string.IsNullOrWhiteSpace(command.Destination) && !command.Date.HasValue)
@@ -33,11 +33,16 @@ namespace Travel.Domain.Travel.Handlers
                 throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, $"{nameof(command.Destination)}, {nameof(command.Date)}");
             }
 
-            Models.Travel travel = await store.Get(command.Id);
+            Models.Travel travel = await store.Get(command.AggregateId);
 
             if (travel == null)
             {
                 throw new IncorrectRequestException(ErrorCodes.ResourceDoesNotExist, nameof(travel));
+            }
+
+            if (travel.Version != command.AggregateVersion)
+            {
+                throw new ResourceStateChangedException(nameof(Travel), travel.Id, travel.Version);
             }
 
             if (travel.Owner != command.Requester && command.RequesterRole != Roles.Admin)
@@ -45,12 +50,17 @@ namespace Travel.Domain.Travel.Handlers
                 throw new UnauthorizedUserException();
             }
 
-            await eventPublisher.Publish(new TravelUpdated
+            var @event = new TravelUpdated
             {
-                Id = command.Id,
+                RelatedCommandId = command.CommandId,
+                Id = travel.Id,
                 Destination = string.IsNullOrWhiteSpace(command.Destination) ? travel.Destination : command.Destination,
                 Date = command.Date.HasValue ? command.Date.Value : travel.Date,
-            });
+            };
+            travel.Apply(@event);
+            @event.AggregateVersion = travel.Version;
+
+            await eventPublisher.Publish(@event);
         }
     }
 }

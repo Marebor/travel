@@ -5,7 +5,9 @@ namespace Travel.Domain.Travel.Commands
 {
     public class CreateTravel : ICommand
     {
-        public Guid Id { get; set; }
+        public Guid CommandId { get; set; }
+        public Guid AggregateId { get; set; }
+        public int AggregateVersion => 0;
         public string Owner { get; set; }
         public string Destination { get; set; }
         public DateTime Date { get; set; }

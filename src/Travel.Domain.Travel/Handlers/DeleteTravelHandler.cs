@@ -23,16 +23,21 @@ namespace Travel.Domain.Travel.Handlers
 
         public async Task Handle(DeleteTravel command)
         {
-            if (command.Id == null || command.Id == Guid.Empty)
+            if (command.AggregateId == null || command.AggregateId == Guid.Empty)
             {
-                throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.Id));
+                throw new IncorrectRequestException(ErrorCodes.ParameterCannotBeEmpty, nameof(command.AggregateId));
             }
             
-            Models.Travel travel = await store.Get(command.Id);
+            Models.Travel travel = await store.Get(command.AggregateId);
 
             if (travel == null)
             {
                 throw new IncorrectRequestException(ErrorCodes.ResourceDoesNotExist, nameof(travel));
+            }
+
+            if (travel.Version != command.AggregateVersion)
+            {
+                throw new ResourceStateChangedException(nameof(Travel), travel.Id, travel.Version);
             }
 
             if (travel.Owner != command.Requester && command.RequesterRole != Roles.Admin)
@@ -40,10 +45,15 @@ namespace Travel.Domain.Travel.Handlers
                 throw new UnauthorizedUserException();
             }
 
-            await eventPublisher.Publish(new TravelDeleted
+            var @event = new TravelDeleted
             {
-                Id = command.Id,
-            });
+                RelatedCommandId = command.CommandId,
+                Id = command.AggregateId,
+            };
+            travel.Apply(@event);
+            @event.AggregateVersion = travel.Version;
+
+            await eventPublisher.Publish(@event);
         }
     }
 }
