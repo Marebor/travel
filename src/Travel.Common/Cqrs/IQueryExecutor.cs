@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Travel.Common.Cqrs
 {
     public interface IQueryExecutor
     {
-        Task<TResult> Execute<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>;
+        Task<IEnumerable<TResult>> Execute<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>;
     }
 }

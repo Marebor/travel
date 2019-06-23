@@ -13,8 +13,10 @@ namespace Travel.Infrastructure.Storage
             var travelEvents = db.GetCollection<EventWrapper>("Events-Travel");
             var travelReadModels = db.GetCollection<ReadModel.Models.Travel>("ReadModels-Travel");
 
-            Events.Collection.ForEach(x => travelEvents.ReplaceOne(y => false, x, new UpdateOptions { IsUpsert = true }));
-            ReadModels.Collection.ForEach(x => travelReadModels.ReplaceOne(y => false, x, new UpdateOptions { IsUpsert = true }));
+            if (!travelEvents.AsQueryable().Any())
+                Events.Collection.ForEach(x => travelEvents.ReplaceOne(y => false, x, new UpdateOptions { IsUpsert = true }));
+            if (!travelReadModels.AsQueryable().Any())
+                ReadModels.Collection.ForEach(x => travelReadModels.ReplaceOne(y => false, x, new UpdateOptions { IsUpsert = true }));
         }
 
         private static class Events

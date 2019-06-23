@@ -30,7 +30,7 @@ namespace Travel.Api.Controllers
         public async Task<IActionResult> GetMyTravels(int? skip, int? take)
         {
             IEnumerable<ReadModel.Models.Travel> travels = 
-                await queryExecutor.Execute<UserTravels, IEnumerable<ReadModel.Models.Travel>>(new UserTravels
+                await queryExecutor.Execute<UserTravels, ReadModel.Models.Travel>(new UserTravels
                 {
                     Skip = skip,
                     Take = take,
@@ -44,7 +44,7 @@ namespace Travel.Api.Controllers
         public async Task<IActionResult> GetAllUsersTravels(int? skip, int? take)
         {
             IEnumerable<ReadModel.Models.Travel> travels =
-                await queryExecutor.Execute<AllTravels, IEnumerable<ReadModel.Models.Travel>>(new AllTravels
+                await queryExecutor.Execute<AllTravels, ReadModel.Models.Travel>(new AllTravels
                 {
                     Skip = skip,
                     Take = take,

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Travel.Common.Cqrs
 {
@@ -6,8 +7,8 @@ namespace Travel.Common.Cqrs
     {
     }
 
-    public interface IQueryHandler<TQuery, TResult> : IQueryHandler where TQuery : IQuery
+    public interface IQueryHandler<TQuery, TResult> : IQueryHandler where TQuery : IQuery<TResult>
     {
-        Task<TResult> Handle(TQuery query);
+        Task<IEnumerable<TResult>> Handle(TQuery query);
     }
 }

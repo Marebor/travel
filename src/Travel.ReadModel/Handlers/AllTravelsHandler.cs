@@ -7,20 +7,20 @@ using Travel.ReadModel.Queries;
 
 namespace Travel.ReadModel.Handlers
 {
-    public class UserTravelsHandler : IQueryHandler<UserTravels, Models.Travel>
+    public class AllTravelsHandler : IQueryHandler<AllTravels, Models.Travel>
     {
         private readonly IQueryableStore<Models.Travel> store;
         private readonly IIdentityProvider identityProvider;
 
-        public UserTravelsHandler(IQueryableStore<Models.Travel> store, IIdentityProvider identityProvider)
+        public AllTravelsHandler(IQueryableStore<Models.Travel> store, IIdentityProvider identityProvider)
         {
             this.store = store;
             this.identityProvider = identityProvider;
         }
 
-        public Task<IEnumerable<Models.Travel>> Handle(UserTravels query)
+        public Task<IEnumerable<Models.Travel>> Handle(AllTravels query)
         {
-            return store.Query(x => x.Owner == identityProvider.GetIdentity().Username, x => x);
+            return store.Query(x => true, x => x);
         }
     }
 }
