@@ -1,0 +1,45 @@
+<h1 id="tableLabel">Customers</h1>
+
+<p *ngIf="!customers; else loaded"><em>Loading...</em></p>
+<ng-template #loaded>
+  <table class='table' aria-labelledby="tableLabel" *ngIf="!editedCustomer; else editForm">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Owner</th>
+        <th>
+          <button class="btn btn-success" (click)="newCustomer()">Add new</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let customer of customers; let i = index">
+        <td>{{ customer.id }}</td>
+        <td>{{ customer.name }}</td>
+        <td>{{ customer.owner }}</td>
+        <td>
+          <button class="btn btn-link" (click)="editCustomer(customer)">Edit</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>  
+  <ng-template #editForm>
+    <form [formGroup]="editCustomerForm" (ngSubmit)="editFormSubmitted()">
+      <div *ngIf="editedCustomer.id" class="form-group">
+        <label for="id">Id</label>
+        <input id="id" type="text" class="form-control" [value]="editedCustomer.id" disabled />
+      </div>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input id="name" type="text" class="form-control" formControlName="name" [value]="editedCustomer.name" />
+      </div>
+      <div *ngIf="editedCustomer.id" class="form-group">
+        <label for="owner">Owner</label>
+        <input id="owner" type="text" class="form-control" formControlName="owner" [value]="editedCustomer.owner" />
+      </div>
+      <button class="btn btn-primary mr-3" type="submit">Submit</button>
+      <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+    </form>
+  </ng-template>
+</ng-template>

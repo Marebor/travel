@@ -1,0 +1,48 @@
+<div *ngIf="!trips; else loaded">Loading...</div>
+<ng-template #loaded>  
+  <div *ngIf="!tripDetails; else participantsView">
+    <h2>Available trips</h2>
+    <ul class="list-group">
+      <li *ngFor="let trip of trips" class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5>
+            {{ trip.destination }}
+            <small *ngIf="trip.isCancelled" class="cancelled">(cancelled)</small>
+          </h5>
+          <span class="badge badge-primary badge-pill" style="cursor: pointer;" (click)="tripDetails = trip" >
+            {{ trip.participants.length }} participants
+          </span>
+        </div>
+        <div>
+          <small>managed by {{ trip.owner }}</small>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <ng-template #participantsView>
+    <div class="d-flex justify-content-between">
+      <h5>{{ tripDetails.destination }} participants:</h5>
+      <button *ngIf="!availableCustomers" class="btn btn-sm btn-success d-inline mb-3" (click)="assignNewCustomer()">Add new</button>
+      <div *ngIf="availableCustomers">
+        <form [formGroup]="assignForm" (ngSubmit)="assignFormSubmitted()">
+          <select id="customerId" class="form-control" formControlName="customerId" required>
+            <option selected>Select customer...</option>
+            <option *ngFor="let customer of availableCustomers" [value]="customer.id">{{ customer.id }} - {{ customer.name }}</option>
+          </select>
+          <button type="submit" class="btn btn-success">Add</button>
+        </form>
+      </div>
+    </div>
+    <div *ngIf="tripDetails.participants.length === 0"><i>no participants</i></div>
+    <ul class="list-group">
+      <li *ngFor="let participant of tripDetails.participants" class="list-group-item">{{ participant.name }}</li>
+    </ul>
+    <button class="btn btn-secondary mt-3" (click)="tripDetails = null">Back</button>
+  </ng-template>
+</ng-template>
+<style>
+  .cancelled {
+    color: red;
+    font-style: italic;
+  }
+</style>
